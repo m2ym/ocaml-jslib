@@ -1,0 +1,5 @@
+name = "jslib"
+version = "0.0.1"
+description = "JavaScript code parser and pretty printer"
+archive(byte) = "jslib.cma"
+archive(native) = "jslib.cmxa"

@@ -1,0 +1,21 @@
+BYTE_ENABLED = true
+NATIVE_ENABLED = true
+USE_OCAMLFIND = true
+
+FILES[] = lexer ast parser5 parse5 pretty
+PACKAGE = $(OCamlPackage jslib, $(FILES))
+LIBRARY = $(OCamlLibrary jslib, jslib)
+OCAMLFLAGS += -for-pack Jslib
+
+.PHONY: install uninstall clean
+
+.DEFAULT: $(LIBRARY)
+
+install: $(LIBRARY) uninstall
+	$(OCAMLFIND) install jslib $(LIBRARY) $(PACKAGE) META
+
+uninstall:
+	$(OCAMLFIND) remove jslib
+
+clean:
+	rm -f $(LIBRARY) $(PACKAGE) *.omc *.annot *.spot *.spit *.o *.opt *.cm* lexer.ml parser5.ml parser5.mli parser5.output
