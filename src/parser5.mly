@@ -3,12 +3,12 @@
 %}
 
 /* Identifier */
-%token <string>
+%token <string * Lexing.position>
     IDENTIFIER
-%token
+%token <Lexing.position>
     GET SET
 /* ReservedWord */
-%token
+%token <Lexing.position>
     BREAK DO INSTANCEOF TYPEOF
     CASE ELSE NEW VAR
     CATCH FINALLY RETURN VOID
@@ -17,14 +17,14 @@
     DEFAULT IF THROW
     DELETE IN TRY
 /* FutureReservedWord */
-%token
+%token <Lexing.position>
     CLASS ENUM EXTENDS SUPER
     CONST EXPORT IMPORT
     IMPLEMENTS LET PRIVATE PUBLIC
     INTERFACE PACKAGE PROTECTED STATIC
     YIELD
 /* Punctuator */
-%token
+%token <Lexing.position>
     LBRACE RBRACE LPAREN RPAREN LBRACK RBRACK
     DOT SEMI COMMA LT GT LE GE
     EQ2 NEQ EQ3 NEQ3
@@ -33,10 +33,11 @@
     NOT NEG AND2 OR2 QUESTION COLON
     EQ PLUS_EQ MINUS_EQ MULT_EQ DIV_EQ MOD_EQ LT2_EQ
     GT2_EQ GT3_EQ AND_EQ OR_EQ XOR_EQ
-%token NULL TRUE FALSE
-%token <[`Dec of string | `Hex of string]>
+%token <Lexing.position>
+    NULL TRUE FALSE
+%token <[`Dec of string | `Hex of string] * Lexing.position>
     NUMERIC
-%token <string>
+%token <string * Lexing.position>
     STRING
 %token
     EOF
@@ -52,78 +53,78 @@ auto_semi: SEMI {} | {}
 
 identifier:
     IDENTIFIER  { $1 }
-  | GET         { "get" }
-  | SET         { "set" }
+  | GET         { "get", $1 }
+  | SET         { "set", $1 }
 
 identifier_name:
     identifier  { $1 }
-  | BREAK       { "break" }
-  | DO          { "do" }
-  | INSTANCEOF  { "instanceof" }
-  | TYPEOF      { "typeof" }
-  | CASE        { "case" }
-  | ELSE        { "else" }
-  | NEW         { "new" }
-  | VAR         { "var" }
-  | CATCH       { "catch" }
-  | FINALLY     { "finally" }
-  | RETURN      { "return" }
-  | VOID        { "void" }
-  | CONTINUE    { "continue" }
-  | FOR         { "for" }
-  | SWITCH      { "switch" }
-  | WHILE       { "while" }
-  | DEBUGGER    { "debugger" }
-  | FUNCTION    { "function" }
-  | THIS        { "this" }
-  | WITH        { "with" }
-  | DEFAULT     { "default" }
-  | IF          { "if" }
-  | THROW       { "throw" }
-  | DELETE      { "delete" }
-  | IN          { "in" }
-  | TRY         { "try" }
-  | CLASS       { "class" }
-  | ENUM        { "enum" }
-  | EXTENDS     { "extends" }
-  | SUPER       { "super" }
-  | CONST       { "const" }
-  | EXPORT      { "export" }
-  | IMPORT      { "import" }
-  | IMPLEMENTS  { "implements" }
-  | LET         { "let" }
-  | PRIVATE     { "private" }
-  | PUBLIC      { "public" }
-  | INTERFACE   { "interface" }
-  | PACKAGE     { "package" }
-  | PROTECTED   { "protected" }
-  | STATIC      { "static" }
-  | YIELD       { "yield" }
-  | NULL        { "null" }
-  | TRUE        { "true" }
-  | FALSE       { "false" }
+  | BREAK       { "break", $1 }
+  | DO          { "do", $1 }
+  | INSTANCEOF  { "instanceof", $1 }
+  | TYPEOF      { "typeof", $1 }
+  | CASE        { "case", $1 }
+  | ELSE        { "else", $1 }
+  | NEW         { "new", $1 }
+  | VAR         { "var", $1 }
+  | CATCH       { "catch", $1 }
+  | FINALLY     { "finally", $1 }
+  | RETURN      { "return", $1 }
+  | VOID        { "void", $1 }
+  | CONTINUE    { "continue", $1 }
+  | FOR         { "for", $1 }
+  | SWITCH      { "switch", $1 }
+  | WHILE       { "while", $1 }
+  | DEBUGGER    { "debugger", $1 }
+  | FUNCTION    { "function", $1 }
+  | THIS        { "this", $1 }
+  | WITH        { "with", $1 }
+  | DEFAULT     { "default", $1 }
+  | IF          { "if", $1 }
+  | THROW       { "throw", $1 }
+  | DELETE      { "delete", $1 }
+  | IN          { "in", $1 }
+  | TRY         { "try", $1 }
+  | CLASS       { "class", $1 }
+  | ENUM        { "enum", $1 }
+  | EXTENDS     { "extends", $1 }
+  | SUPER       { "super", $1 }
+  | CONST       { "const", $1 }
+  | EXPORT      { "export", $1 }
+  | IMPORT      { "import", $1 }
+  | IMPLEMENTS  { "implements", $1 }
+  | LET         { "let", $1 }
+  | PRIVATE     { "private", $1 }
+  | PUBLIC      { "public", $1 }
+  | INTERFACE   { "interface", $1 }
+  | PACKAGE     { "package", $1 }
+  | PROTECTED   { "protected", $1 }
+  | STATIC      { "static", $1 }
+  | YIELD       { "yield", $1 }
+  | NULL        { "null", $1 }
+  | TRUE        { "true", $1 }
+  | FALSE       { "false", $1 }
 
 literal:
-    NULL        { `Null }
-  | TRUE        { `Bool true }
-  | FALSE       { `Bool false }
-  | NUMERIC     { `Number $1 }
-  | STRING      { `String $1 }
+    NULL        { `Null, $1 }
+  | TRUE        { `Bool true, $1 }
+  | FALSE       { `Bool false, $1 }
+  | NUMERIC     { `Number (fst $1), snd $1 }
+  | STRING      { `String (fst $1), snd $1 }
 /* TODO RegularExpressionLiteral */
 
 primary_expression:
-    THIS                        { This }
-  | identifier                  { Ident $1 }
-  | literal                     { Literal $1 }
+    THIS                        { This $1 }
+  | identifier                  { Ident (fst $1, snd $1) }
+  | literal                     { Literal (fst $1, snd $1) }
   | array_literal               { $1 }
   | object_literal              { $1 }
   | LPAREN expression RPAREN    { $2 }
 
 array_literal:
     LBRACK RBRACK
-      { Array [] }
+      { Array ([], $1) }
   | LBRACK element_list elision_opt RBRACK
-      { Array ($2) }
+      { Array ($2, $1) }
 
 element_list:
     elision_opt assignment_expression
@@ -137,11 +138,11 @@ elision_opt: elision {} | {}
 
 object_literal:
     LBRACE RBRACE
-      { Object [] }
+      { Object ([], $1) }
   | LBRACE property_name_and_value_list RBRACE
-      { Object $2 }
+      { Object ($2, $1) }
   | LBRACE property_name_and_value_list COMMA RBRACE
-      { Object $2 }
+      { Object ($2, $1) }
 
 property_name_and_value_list:
     property_assignment
@@ -151,33 +152,33 @@ property_name_and_value_list:
 
 property_assignment:
     property_name COLON assignment_expression
-      { `Init ($1, $3) }
+      { `Init (fst $1, $3, snd $1) }
   | GET property_name LPAREN RPAREN block
-      { `Get ($2, $5) }
+      { `Get (fst $2, fst $5, snd $2) }
   | SET property_name LPAREN identifier RPAREN block
-      { `Set ($2, $4, $6) }
+      { `Set (fst $2, (fst $4), fst $6, snd $2) }
 
 property_name:
-    identifier          { `Ident $1 }
-  | STRING              { `String $1 }
-  | NUMERIC             { `Number $1 }
+    identifier          { `Ident (fst $1), snd $1 }
+  | STRING              { `String (fst $1), snd $1 }
+  | NUMERIC             { `Number (fst $1), snd $1 }
 
 member_expression:
     primary_expression                          { $1 }
   | function_expression                         { $1 }
-  | member_expression LBRACK expression RBRACK  { Member ($1, `Expr $3) }
-  | member_expression DOT identifier_name       { Member ($1, `Ident $3) }
-  | NEW member_expression arguments             { New ($2, $3) }
+  | member_expression LBRACK expression RBRACK  { Member ($1, `Expr $3, $2) }
+  | member_expression DOT identifier_name       { Member ($1, `Ident (fst $3), $2) }
+  | NEW member_expression arguments             { New ($2, $3, $1) }
 
 new_expression:
     member_expression                           { $1 }
-  | NEW new_expression                          { New ($2, []) }
+  | NEW new_expression                          { New ($2, [], $1) }
 
 call_expression:
-    member_expression arguments                 { Call ($1, $2) }
-  | call_expression arguments                   { Call ($1, $2) }
-  | call_expression LBRACK expression RBRACK    { Member ($1, `Expr $3) }
-  | call_expression DOT identifier_name         { Member ($1, `Ident $3) }
+    member_expression arguments                 { Call ($1, $2, pos_of_expr $1) }
+  | call_expression arguments                   { Call ($1, $2, pos_of_expr $1) }
+  | call_expression LBRACK expression RBRACK    { Member ($1, `Expr $3, $2) }
+  | call_expression DOT identifier_name         { Member ($1, `Ident (fst $3), $2) }
 
 arguments:
     LPAREN RPAREN               { [] }
@@ -193,209 +194,209 @@ left_hand_side_expression:
 
 postfix_expression:
     left_hand_side_expression           { $1 }
-  | left_hand_side_expression PLUS2     { Unary (`PostIncr, $1) }
-  | left_hand_side_expression MINUS2    { Unary (`PostDecr, $1) }
+  | left_hand_side_expression PLUS2     { Unary (`PostIncr, $1, $2) }
+  | left_hand_side_expression MINUS2    { Unary (`PostDecr, $1, $2) }
 
 unary_expression:
     postfix_expression                  { $1 }
-  | DELETE unary_expression             { Unary (`Delete, $2) }
-  | VOID unary_expression               { Unary (`Void, $2) }
-  | TYPEOF unary_expression             { Unary (`TypeOf, $2) }
-  | PLUS2 unary_expression              { Unary (`PreIncr, $2) }
-  | MINUS2 unary_expression             { Unary (`PreDecr, $2) }
-  | PLUS unary_expression               { Unary (`Plus, $2) }
-  | MINUS unary_expression              { Unary (`Minus, $2) }
-  | NEG unary_expression                { Unary (`Negate, $2) }
-  | NOT unary_expression                { Unary (`Not, $2) }
+  | DELETE unary_expression             { Unary (`Delete, $2, $1) }
+  | VOID unary_expression               { Unary (`Void, $2, $1) }
+  | TYPEOF unary_expression             { Unary (`TypeOf, $2, $1) }
+  | PLUS2 unary_expression              { Unary (`PreIncr, $2, $1) }
+  | MINUS2 unary_expression             { Unary (`PreDecr, $2, $1) }
+  | PLUS unary_expression               { Unary (`Plus, $2, $1) }
+  | MINUS unary_expression              { Unary (`Minus, $2, $1) }
+  | NEG unary_expression                { Unary (`Negate, $2, $1) }
+  | NOT unary_expression                { Unary (`Not, $2, $1) }
 
 multiplicative_expression:
     unary_expression
       { $1 }
   | multiplicative_expression MULT unary_expression
-      { Binary (`Mult, $1, $3) }
+      { Binary (`Mult, $1, $3, $2) }
   | multiplicative_expression DIV unary_expression
-      { Binary (`Div, $1, $3) }
+      { Binary (`Div, $1, $3, $2) }
   | multiplicative_expression MOD unary_expression
-      { Binary (`Mod, $1, $3) }
+      { Binary (`Mod, $1, $3, $2) }
 
 additive_expression:
     multiplicative_expression
       { $1 }
   | additive_expression PLUS multiplicative_expression
-      { Binary (`Add, $1, $3) }
+      { Binary (`Add, $1, $3, $2) }
   | additive_expression MINUS multiplicative_expression
-      { Binary (`Sub, $1, $3) }
+      { Binary (`Sub, $1, $3, $2) }
 
 shift_expression:
     additive_expression
       { $1 }
   | shift_expression LT2 additive_expression
-      { Binary (`LShift, $1, $3) }
+      { Binary (`LShift, $1, $3, $2) }
   | shift_expression GT2 additive_expression
-      { Binary (`AShift, $1, $3) }
+      { Binary (`AShift, $1, $3, $2) }
   | shift_expression GT3 additive_expression
-      { Binary (`RShift, $1, $3) }
+      { Binary (`RShift, $1, $3, $2) }
 
 relational_expression:
     shift_expression
       { $1 }
   | relational_expression LT shift_expression
-      { Binary (`Lt, $1, $3) }
+      { Binary (`Lt, $1, $3, $2) }
   | relational_expression GT shift_expression
-      { Binary (`Gt, $1, $3) }
+      { Binary (`Gt, $1, $3, $2) }
   | relational_expression LE shift_expression
-      { Binary (`LtE, $1, $3) }
+      { Binary (`LtE, $1, $3, $2) }
   | relational_expression GE shift_expression
-      { Binary (`GtE, $1, $3) }
+      { Binary (`GtE, $1, $3, $2) }
   | relational_expression INSTANCEOF shift_expression
-      { Binary (`InstanceOf, $1, $3) }
+      { Binary (`InstanceOf, $1, $3, $2) }
   | relational_expression IN shift_expression
-      { Binary (`In, $1, $3) }
+      { Binary (`In, $1, $3, $2) }
 
 relational_expression_no_in:
     shift_expression
       { $1 }
   | relational_expression_no_in LT shift_expression
-      { Binary (`Lt, $1, $3) }
+      { Binary (`Lt, $1, $3, $2) }
   | relational_expression_no_in GT shift_expression
-      { Binary (`Gt, $1, $3) }
+      { Binary (`Gt, $1, $3, $2) }
   | relational_expression_no_in LE shift_expression
-      { Binary (`LtE, $1, $3) }
+      { Binary (`LtE, $1, $3, $2) }
   | relational_expression_no_in GE shift_expression
-      { Binary (`GtE, $1, $3) }
+      { Binary (`GtE, $1, $3, $2) }
   | relational_expression_no_in INSTANCEOF shift_expression
-      { Binary (`InstanceOf, $1, $3) }
+      { Binary (`InstanceOf, $1, $3, $2) }
 
 equality_expression:
     relational_expression
       { $1 }
   | equality_expression EQ2 relational_expression
-      { Binary (`Eq, $1, $3) }
+      { Binary (`Eq, $1, $3, $2) }
   | equality_expression NEQ relational_expression
-      { Binary (`Neq, $1, $3) }
+      { Binary (`Neq, $1, $3, $2) }
   | equality_expression EQ3 relational_expression
-      { Binary (`Equal, $1, $3) }
+      { Binary (`Equal, $1, $3, $2) }
   | equality_expression NEQ3 relational_expression
-      { Binary (`NotEqual, $1, $3) }
+      { Binary (`NotEqual, $1, $3, $2) }
 
 equality_expression_no_in:
     relational_expression_no_in
       { $1 }
   | equality_expression_no_in EQ2 relational_expression_no_in
-      { Binary (`Eq, $1, $3) }
+      { Binary (`Eq, $1, $3, $2) }
   | equality_expression_no_in NEQ relational_expression_no_in
-      { Binary (`Neq, $1, $3) }
+      { Binary (`Neq, $1, $3, $2) }
   | equality_expression_no_in EQ3 relational_expression_no_in
-      { Binary (`Equal, $1, $3) }
+      { Binary (`Equal, $1, $3, $2) }
   | equality_expression_no_in NEQ3 relational_expression_no_in
-      { Binary (`NotEqual, $1, $3) }
+      { Binary (`NotEqual, $1, $3, $2) }
 
 bitwise_AND_expression:
     equality_expression
       { $1 }
   | bitwise_AND_expression AND equality_expression
-      { Binary (`BitAnd, $1, $3) }
+      { Binary (`BitAnd, $1, $3, $2) }
 
 bitwise_AND_expression_no_in:
     equality_expression_no_in
       { $1 }
   | bitwise_AND_expression_no_in AND equality_expression_no_in
-      { Binary (`BitAnd, $1, $3) }
+      { Binary (`BitAnd, $1, $3, $2) }
 
 bitwise_XOR_expression:
     bitwise_AND_expression
       { $1 }
   | bitwise_XOR_expression XOR bitwise_AND_expression
-      { Binary (`BitXor, $1, $3) }
+      { Binary (`BitXor, $1, $3, $2) }
 
 bitwise_XOR_expression_no_in:
     bitwise_AND_expression_no_in
       { $1 }
   | bitwise_XOR_expression_no_in XOR bitwise_AND_expression_no_in
-      { Binary (`BitXor, $1, $3) }
+      { Binary (`BitXor, $1, $3, $2) }
 
 bitwise_OR_expression:
     bitwise_XOR_expression
       { $1 }
   | bitwise_OR_expression OR bitwise_XOR_expression
-      { Binary (`BitOr, $1, $3) }
+      { Binary (`BitOr, $1, $3, $2) }
 
 bitwise_OR_expression_no_in:
     bitwise_XOR_expression_no_in
       { $1 }
   | bitwise_OR_expression_no_in OR bitwise_XOR_expression_no_in
-      { Binary (`BitOr, $1, $3) }
+      { Binary (`BitOr, $1, $3, $2) }
 
 logical_AND_expression:
     bitwise_OR_expression
       { $1 }
   | logical_AND_expression AND2 bitwise_OR_expression
-      { Binary (`And, $1, $3) }
+      { Binary (`And, $1, $3, $2) }
 
 logical_AND_expression_no_in:
     bitwise_OR_expression_no_in
       { $1 }
   | logical_AND_expression_no_in AND2 bitwise_OR_expression_no_in
-      { Binary (`And, $1, $3) }
+      { Binary (`And, $1, $3, $2) }
 
 logical_OR_expression:
     logical_AND_expression
       { $1 }
   | logical_OR_expression OR2 logical_AND_expression
-      { Binary (`Or, $1, $3) }
+      { Binary (`Or, $1, $3, $2) }
 
 logical_OR_expression_no_in:
     logical_AND_expression_no_in
       { $1 }
   | logical_OR_expression_no_in OR2 logical_AND_expression_no_in
-      { Binary (`Or, $1, $3) }
+      { Binary (`Or, $1, $3, $2) }
 
 conditional_expression:
     logical_OR_expression
       { $1 }
   | logical_OR_expression QUESTION assignment_expression COLON assignment_expression
-      { Ternary ($1, $3, $5) }
+      { Ternary ($1, $3, $5, $2) }
 
 conditional_expression_no_in:
     logical_OR_expression_no_in
       { $1 }
   | logical_OR_expression_no_in QUESTION assignment_expression COLON assignment_expression_no_in
-      { Ternary ($1, $3, $5) }
+      { Ternary ($1, $3, $5, $2) }
 
 assignment_expression:
     conditional_expression
       { $1 }
   | left_hand_side_expression EQ assignment_expression
-      { Assign (`Nop, $1, $3) }
+      { Assign (`Nop, $1, $3, $2) }
   | left_hand_side_expression assignment_operator assignment_expression
-      { Assign ($2, $1, $3) }
+      { Assign (fst $2, $1, $3, snd $2) }
 
  assignment_expression_no_in:
     conditional_expression_no_in
       { $1 }
   | left_hand_side_expression EQ assignment_expression_no_in
-      { Assign (`Nop, $1, $3) }
+      { Assign (`Nop, $1, $3, $2) }
   | left_hand_side_expression assignment_operator assignment_expression_no_in
-      { Assign ($2, $1, $3) }
+      { Assign (fst $2, $1, $3, snd $2) }
 
 assignment_operator:
-    MULT_EQ     { `Mult }
-  | DIV_EQ      { `Div }
-  | MOD_EQ      { `Mod }
-  | PLUS_EQ     { `Add }
-  | MINUS_EQ    { `Sub }
-  | LT2_EQ      { `LShift }
-  | GT2_EQ      { `AShift }
-  | GT3_EQ      { `RShift }
-  | AND_EQ      { `BitAnd }
-  | XOR_EQ      { `BitXor }
-  | OR_EQ       { `BitOr }
+    MULT_EQ     { `Mult, $1 }
+  | DIV_EQ      { `Div, $1 }
+  | MOD_EQ      { `Mod, $1 }
+  | PLUS_EQ     { `Add, $1 }
+  | MINUS_EQ    { `Sub, $1 }
+  | LT2_EQ      { `LShift, $1 }
+  | GT2_EQ      { `AShift, $1 }
+  | GT3_EQ      { `RShift, $1 }
+  | AND_EQ      { `BitAnd, $1 }
+  | XOR_EQ      { `BitXor, $1 }
+  | OR_EQ       { `BitOr, $1 }
 
 expression:
     assignment_expression
       { $1 }
   | expression COMMA assignment_expression
-      { Sequence ($1, $3) }
+      { Sequence ($1, $3, $2) }
 
 expression_opt: { None } | expression { Some $1 }
 
@@ -403,10 +404,10 @@ expression_no_in:
     assignment_expression_no_in
       { $1 }
   | expression_no_in COMMA assignment_expression_no_in
-      { Sequence ($1, $3) }
+      { Sequence ($1, $3, $2) }
 
 statement:
-    block                       { Block $1 }
+    block                       { Block (fst $1, snd $1) }
   | function_declaration        { $1 }
   | variable_statement          { $1 }
   | empty_statement             { $1 }
@@ -424,8 +425,8 @@ statement:
   | debugger_statement          { $1 }
 
 block:
-    LBRACE RBRACE                       { [] }
-  | LBRACE statement_list RBRACE        { $2 }
+    LBRACE RBRACE                       { [], $1 }
+  | LBRACE statement_list RBRACE        { $2, $1 }
 
 statement_list:
     statement                   { [$1] }
@@ -435,7 +436,7 @@ statement_list_opt: statement_list { $1 } |  { [] }
 
 variable_statement:
     VAR variable_declaration_list auto_semi
-      { Var ($2) }
+      { Var ($2, $1) }
 
 variable_declaration_list:
     variable_declaration
@@ -450,10 +451,10 @@ variable_declaration_list_no_in:
       { $1 @ [$3] }
 
 variable_declaration:
-    identifier initializer_opt  { ($1, $2) }
+    identifier initializer_opt  { (fst $1, $2, snd $1) }
 
 variable_declaration_no_in:
-    identifier initializer_no_in_opt  { ($1, $2) }
+    identifier initializer_no_in_opt  { (fst $1, $2, snd $1) }
 
 initializer_:
     EQ assignment_expression    { $2 }
@@ -466,56 +467,56 @@ initializer_no_in:
 initializer_no_in_opt: initializer_no_in { Some $1 } | { None }
 
 empty_statement:
-    SEMI { Empty }
+    SEMI { Empty ($1) }
 
 expression_statement:
-    expression auto_semi { Expr $1 }
+    expression auto_semi { Expr ($1, pos_of_expr $1) }
 
 if_statement:
     IF LPAREN expression RPAREN statement ELSE statement
-      { If ($3, $5, Some $7) } 
+      { If ($3, $5, Some $7, $1) } 
   | IF LPAREN expression RPAREN statement
-      { If ($3, $5, None) } 
+      { If ($3, $5, None, $1) } 
 
 iteration_statement:
     DO statement WHILE LPAREN expression RPAREN auto_semi
-      { Do ($2, $5) }
+      { Do ($2, $5, $1) }
   | WHILE LPAREN expression RPAREN statement
-      { While ($3, $5) }
+      { While ($3, $5, $1) }
   | FOR LPAREN SEMI expression_opt SEMI expression_opt RPAREN statement
-      { For (`Nop, $4, $6, $8) }
+      { For (`Nop, $4, $6, $8, $1) }
   | FOR LPAREN expression_no_in SEMI expression_opt SEMI expression_opt RPAREN statement
-      { For (`Expr $3, $5, $7, $9) }
+      { For (`Expr $3, $5, $7, $9, $1) }
   | FOR LPAREN VAR variable_declaration_list_no_in SEMI expression_opt SEMI expression_opt RPAREN statement
-      { For (`Var $4, $6, $8, $10) }
+      { For (`Var $4, $6, $8, $10, $1) }
   | FOR LPAREN left_hand_side_expression IN expression RPAREN statement
-      { ForIn (`Expr $3, $5, $7) }
+      { ForIn (`Expr $3, $5, $7, $1) }
   | FOR LPAREN VAR variable_declaration_no_in IN expression RPAREN statement
-      { ForIn (`Var $4, $6, $8) }
+      { ForIn (`Var $4, $6, $8, $1) }
 
 continue_statement:
     CONTINUE auto_semi
-      { Continue None }
+      { Continue (None, $1) }
   | CONTINUE identifier auto_semi
-      { Continue (Some $2) }
+      { Continue (Some (fst $2), $1) }
 
 break_statement:
     BREAK auto_semi
-      { Break None }
+      { Break (None, $1) }
   | BREAK identifier auto_semi
-      { Break (Some $2) }
+      { Break (Some (fst $2), $1) }
 
 return_statement:
     RETURN auto_semi
-      { Return None }
+      { Return (None, $1) }
   | RETURN expression auto_semi
-      { Return (Some $2) }
+      { Return (Some $2, $1) }
 
 with_statement:
-    WITH LPAREN expression RPAREN statement     { With ($3, $5) }
+    WITH LPAREN expression RPAREN statement     { With ($3, $5, $1) }
 
 switch_statement:
-    SWITCH LPAREN expression RPAREN case_block  { Switch ($3, $5) }
+    SWITCH LPAREN expression RPAREN case_block  { Switch ($3, $5, $1) }
 
 case_block:
   | LBRACE case_clauses default_clause_opt case_clauses RBRACE
@@ -534,39 +535,39 @@ default_clause:
 default_clause_opt: default_clause { [$1] } | { [] }
 
 labeled_statement:
-    identifier_name COLON statement  { Labeled ($1, $3) }
+    identifier_name COLON statement  { Labeled (fst $1, $3, snd $1) }
 
 throw_statement:
     THROW expression auto_semi
-      { Throw ($2) }
+      { Throw ($2, $1) }
 
 try_statement:
-    TRY block catch             { Try ($2, Some $3, None) }
-  | TRY block finally           { Try ($2, None, Some $3) }
-  | TRY block catch finally     { Try ($2, Some $3, Some $4) }
+    TRY block catch             { Try (fst $2, Some $3, None, $1) }
+  | TRY block finally           { Try (fst $2, None, Some $3, $1) }
+  | TRY block catch finally     { Try (fst $2, Some $3, Some $4, $1) }
 
 catch:
-    CATCH LPAREN identifier RPAREN block        { ($3, $5) }
+    CATCH LPAREN identifier RPAREN block        { (fst $3, fst $5) }
 
 finally:
-    FINALLY block       { $2 }
+    FINALLY block       { fst $2 }
 
 debugger_statement:
-    DEBUGGER auto_semi       { Debugger }
+    DEBUGGER auto_semi       { Debugger $1 }
 
 function_declaration:
     FUNCTION identifier LPAREN formal_parameter_list_opt RPAREN block
-      { FunctionDecl ($2, $4, $6) }
+      { FunctionDecl (fst $2, $4, fst $6, $1) }
 
 function_expression:
     FUNCTION identifier_opt LPAREN formal_parameter_list_opt RPAREN block
-      { Function ($2, $4, $6) }
+      { Function ($2, $4, fst $6, $1) }
 
-identifier_opt: identifier { Some $1 } | { None }
+identifier_opt: identifier { Some (fst $1) } | { None }
 
 formal_parameter_list:
-    identifier                                  { [$1] }
-  | formal_parameter_list COMMA identifier      { $1 @ [$3] }
+    identifier                                  { [fst $1] }
+  | formal_parameter_list COMMA identifier      { $1 @ [fst $3] }
 
 formal_parameter_list_opt: formal_parameter_list { $1 } | { [] }
 

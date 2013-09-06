@@ -2,6 +2,8 @@
   open Parser5
   open Ast
 
+  let start_pos lexbuf = lexbuf.Lexing.lex_start_p
+
   let int_of_hex_char c =
     if c >= '0' && c <= '9'
     then Char.code c - Char.code '0'
@@ -66,116 +68,116 @@ rule token state = parse
   | identifier_name as id
       {
         match id with
-        | "break"       -> BREAK
-        | "do"          -> DO
-        | "instanceof"  -> INSTANCEOF
-        | "typeof"      -> TYPEOF
-        | "case"        -> CASE
-        | "else"        -> ELSE
-        | "new"         -> NEW
-        | "var"         -> VAR
-        | "catch"       -> CATCH
-        | "finally"     -> FINALLY
-        | "return"      -> RETURN
-        | "void"        -> VOID
-        | "continue"    -> CONTINUE
-        | "for"         -> FOR
-        | "switch"      -> SWITCH
-        | "while"       -> WHILE
-        | "debugger"    -> DEBUGGER
-        | "function"    -> FUNCTION
-        | "this"        -> THIS
-        | "with"        -> WITH
-        | "default"     -> DEFAULT
-        | "if"          -> IF
-        | "throw"       -> THROW
-        | "delete"      -> DELETE
-        | "in"          -> IN
-        | "try"         -> TRY
-        | "class"       -> CLASS
-        | "enum"        -> ENUM
-        | "extends"     -> EXTENDS
-        | "super"       -> SUPER
-        | "const"       -> CONST
-        | "export"      -> EXPORT
-        | "import"      -> IMPORT
-        | "implements"  -> IMPLEMENTS
-        | "let"         -> LET
-        | "private"     -> PRIVATE
-        | "public"      -> PUBLIC
-        | "interface"   -> INTERFACE
-        | "package"     -> PACKAGE
-        | "protected"   -> PROTECTED
-        | "static"      -> STATIC
-        | "yield"       -> YIELD
+        | "break"       -> BREAK (start_pos lexbuf)
+        | "do"          -> DO (start_pos lexbuf)
+        | "instanceof"  -> INSTANCEOF (start_pos lexbuf)
+        | "typeof"      -> TYPEOF (start_pos lexbuf)
+        | "case"        -> CASE (start_pos lexbuf)
+        | "else"        -> ELSE (start_pos lexbuf)
+        | "new"         -> NEW (start_pos lexbuf)
+        | "var"         -> VAR (start_pos lexbuf)
+        | "catch"       -> CATCH (start_pos lexbuf)
+        | "finally"     -> FINALLY (start_pos lexbuf)
+        | "return"      -> RETURN (start_pos lexbuf)
+        | "void"        -> VOID (start_pos lexbuf)
+        | "continue"    -> CONTINUE (start_pos lexbuf)
+        | "for"         -> FOR (start_pos lexbuf)
+        | "switch"      -> SWITCH (start_pos lexbuf)
+        | "while"       -> WHILE (start_pos lexbuf)
+        | "debugger"    -> DEBUGGER (start_pos lexbuf)
+        | "function"    -> FUNCTION (start_pos lexbuf)
+        | "this"        -> THIS (start_pos lexbuf)
+        | "with"        -> WITH (start_pos lexbuf)
+        | "default"     -> DEFAULT (start_pos lexbuf)
+        | "if"          -> IF (start_pos lexbuf)
+        | "throw"       -> THROW (start_pos lexbuf)
+        | "delete"      -> DELETE (start_pos lexbuf)
+        | "in"          -> IN (start_pos lexbuf)
+        | "try"         -> TRY (start_pos lexbuf)
+        | "class"       -> CLASS (start_pos lexbuf)
+        | "enum"        -> ENUM (start_pos lexbuf)
+        | "extends"     -> EXTENDS (start_pos lexbuf)
+        | "super"       -> SUPER (start_pos lexbuf)
+        | "const"       -> CONST (start_pos lexbuf)
+        | "export"      -> EXPORT (start_pos lexbuf)
+        | "import"      -> IMPORT (start_pos lexbuf)
+        | "implements"  -> IMPLEMENTS (start_pos lexbuf)
+        | "let"         -> LET (start_pos lexbuf)
+        | "private"     -> PRIVATE (start_pos lexbuf)
+        | "public"      -> PUBLIC (start_pos lexbuf)
+        | "interface"   -> INTERFACE (start_pos lexbuf)
+        | "package"     -> PACKAGE (start_pos lexbuf)
+        | "protected"   -> PROTECTED (start_pos lexbuf)
+        | "static"      -> STATIC (start_pos lexbuf)
+        | "yield"       -> YIELD (start_pos lexbuf)
         (* Literal *)
-        | "null"        -> NULL
-        | "true"        -> TRUE
-        | "false"       -> FALSE
-        | "get"         -> GET
-        | "set"         -> SET
-        | _             -> IDENTIFIER id
+        | "null"        -> NULL (start_pos lexbuf)
+        | "true"        -> TRUE (start_pos lexbuf)
+        | "false"       -> FALSE (start_pos lexbuf)
+        | "get"         -> GET (start_pos lexbuf)
+        | "set"         -> SET (start_pos lexbuf)
+        | _             -> IDENTIFIER (id, start_pos lexbuf)
       }
 
   (* Punctuator *)
-  | '{'         { LBRACE }
-  | '}'         { RBRACE }
-  | '('         { LPAREN }
-  | ')'         { RPAREN }
-  | '['         { LBRACK }
-  | ']'         { RBRACK }
-  | '.'         { DOT }
-  | ';'         { SEMI }
-  | ','         { COMMA }
-  | "==="       { EQ3 }
-  | "!=="       { NEQ3 }
-  | "=="        { EQ2 }
-  | "!="        { NEQ }
-  | "++"        { PLUS2 }
-  | "--"        { MINUS2 }
-  | "+="        { PLUS_EQ }
-  | "-="        { MINUS_EQ }
-  | "*="        { MULT_EQ }
-  | "/="        { DIV_EQ }
-  | "%="        { MOD_EQ }
-  | "<<="       { LT2_EQ }
-  | ">>="       { GT2_EQ }
-  | ">>>="      { GT3_EQ }
-  | "&="        { AND_EQ }
-  | "|="        { OR_EQ }
-  | "^="        { XOR_EQ }
-  | "<="        { LE }
-  | ">="        { GE }
-  | "<<"        { LT2 }
-  | ">>>"       { GT3 }
-  | ">>"        { GT2 }
-  | '<'         { LT }
-  | '>'         { GT }
-  | '+'         { PLUS }
-  | '-'         { MINUS}
-  | '*'         { MULT }
-  | '/'         { DIV }
-  | '%'         { MOD }
-  | "&&"        { AND2 }
-  | "||"        { OR2 }
-  | '&'         { AND }
-  | '|'         { OR }
-  | '^'         { XOR }
-  | '!'         { NOT }
-  | '~'         { NEG }
-  | '?'         { QUESTION }
-  | ':'         { COLON }
-  | '='         { EQ }
+  | '{'         { LBRACE (start_pos lexbuf) }
+  | '}'         { RBRACE (start_pos lexbuf) }
+  | '('         { LPAREN (start_pos lexbuf) }
+  | ')'         { RPAREN (start_pos lexbuf) }
+  | '['         { LBRACK (start_pos lexbuf) }
+  | ']'         { RBRACK (start_pos lexbuf) }
+  | '.'         { DOT (start_pos lexbuf) }
+  | ';'         { SEMI (start_pos lexbuf) }
+  | ','         { COMMA (start_pos lexbuf) }
+  | "==="       { EQ3 (start_pos lexbuf) }
+  | "!=="       { NEQ3 (start_pos lexbuf) }
+  | "=="        { EQ2 (start_pos lexbuf) }
+  | "!="        { NEQ (start_pos lexbuf) }
+  | "++"        { PLUS2 (start_pos lexbuf) }
+  | "--"        { MINUS2 (start_pos lexbuf) }
+  | "+="        { PLUS_EQ (start_pos lexbuf) }
+  | "-="        { MINUS_EQ (start_pos lexbuf) }
+  | "*="        { MULT_EQ (start_pos lexbuf) }
+  | "/="        { DIV_EQ (start_pos lexbuf) }
+  | "%="        { MOD_EQ (start_pos lexbuf) }
+  | "<<="       { LT2_EQ (start_pos lexbuf) }
+  | ">>="       { GT2_EQ (start_pos lexbuf) }
+  | ">>>="      { GT3_EQ (start_pos lexbuf) }
+  | "&="        { AND_EQ (start_pos lexbuf) }
+  | "|="        { OR_EQ (start_pos lexbuf) }
+  | "^="        { XOR_EQ (start_pos lexbuf) }
+  | "<="        { LE (start_pos lexbuf) }
+  | ">="        { GE (start_pos lexbuf) }
+  | "<<"        { LT2 (start_pos lexbuf) }
+  | ">>>"       { GT3 (start_pos lexbuf) }
+  | ">>"        { GT2 (start_pos lexbuf) }
+  | '<'         { LT (start_pos lexbuf) }
+  | '>'         { GT (start_pos lexbuf) }
+  | '+'         { PLUS (start_pos lexbuf) }
+  | '-'         { MINUS (start_pos lexbuf)}
+  | '*'         { MULT (start_pos lexbuf) }
+  | '/'         { DIV (start_pos lexbuf) }
+  | '%'         { MOD (start_pos lexbuf) }
+  | "&&"        { AND2 (start_pos lexbuf) }
+  | "||"        { OR2 (start_pos lexbuf) }
+  | '&'         { AND (start_pos lexbuf) }
+  | '|'         { OR (start_pos lexbuf) }
+  | '^'         { XOR (start_pos lexbuf) }
+  | '!'         { NOT (start_pos lexbuf) }
+  | '~'         { NEG (start_pos lexbuf) }
+  | '?'         { QUESTION (start_pos lexbuf) }
+  | ':'         { COLON (start_pos lexbuf) }
+  | '='         { EQ (start_pos lexbuf) }
 
   (* NumericLiteral *)
   | decimal_literal as dec
-      { NUMERIC (`Dec dec) }
+      { NUMERIC (`Dec dec, start_pos lexbuf) }
   | hex_integer_literal as hex
-      { NUMERIC (`Hex hex) }
+      { NUMERIC (`Hex hex, start_pos lexbuf) }
 
   (* StringLiteral *)
-  | '"'         { double_quoted_string state (Buffer.create 16) lexbuf }
-  | '\''        { single_quoted_string state (Buffer.create 16) lexbuf }
+  | '"'         { double_quoted_string state (Buffer.create 16) (start_pos lexbuf) lexbuf }
+  | '\''        { single_quoted_string state (Buffer.create 16) (start_pos lexbuf) lexbuf }
 
   | eof         { EOF }
 
@@ -183,35 +185,35 @@ and multi_line_comment state = parse
   | "*/"        { token state lexbuf }
   | _           { multi_line_comment state lexbuf }
 
-and double_quoted_string state buf = parse
-  | '"'         { STRING (Buffer.contents buf) }
-  | '\\'        { escape_sequence state buf double_quoted_string lexbuf }
+and double_quoted_string state buf pos = parse
+  | '"'         { STRING (Buffer.contents buf, pos) }
+  | '\\'        { escape_sequence state buf pos double_quoted_string lexbuf }
   (* accept LineTerminator *)
   | _ as c      { Buffer.add_char buf c;
-                  double_quoted_string state buf lexbuf }
+                  double_quoted_string state buf pos lexbuf }
 
-and single_quoted_string state buf = parse
-  | '\''        { STRING (Buffer.contents buf) }
-  | '\\'        { escape_sequence state buf single_quoted_string lexbuf }
+and single_quoted_string state buf pos = parse
+  | '\''        { STRING (Buffer.contents buf, pos) }
+  | '\\'        { escape_sequence state buf pos single_quoted_string lexbuf }
   (* accept LineTerminator *)
   | _ as c      { Buffer.add_char buf c;
-                  single_quoted_string state buf lexbuf }
+                  single_quoted_string state buf pos lexbuf }
 
-and escape_sequence state buf cont = parse
+and escape_sequence state buf pos cont = parse
   (* SingleEscapeCharacter *)
   | ['\'' '"' '\\' 'b' 'f' 'n' 'r' 't' 'v'] as c
       { Buffer.add_char buf c;
-        cont state buf lexbuf }
+        cont state buf pos lexbuf }
   (* LineContinuation *)
   | line_terminator_sequece as lts
       { Buffer.add_string buf lts;
-        cont state buf lexbuf }
+        cont state buf pos lexbuf }
   (* TODO 0 [lookahead is not DecimalDigit] *)
   (* HexEscapeSequence *)
   | 'x' (hex_digit as h) (hex_digit as l)
       { let c = Char.chr (int_of_hex_char h * 16 + int_of_hex_char l) in
         Buffer.add_char buf c;
-        cont state buf lexbuf }
+        cont state buf pos lexbuf }
   (* TODO UnicodeEscapeSequence *)
   | 'x' (hex_digit as u1) (hex_digit as u2) (hex_digit as u3) (hex_digit as u4)
       { ignore u1; ignore u2; ignore u3; ignore u4;
@@ -219,4 +221,4 @@ and escape_sequence state buf cont = parse
   (* NonEscapeCharacter *)
   | _ as c
       { Buffer.add_char buf c;
-        cont state buf lexbuf }
+        cont state buf pos lexbuf }
