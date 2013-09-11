@@ -75,11 +75,13 @@ and stmt =
   | Try of stmt list * (string * stmt list) option * stmt list option * pos
   | While of expr * stmt * pos
   | Do of stmt * expr * pos
-  | For of [`Nop | `Var of (string * expr option * pos) list | `Expr of expr] * expr option * expr option * stmt * pos
-  | ForIn of [`Var of string * expr option * pos | `Expr of expr] * expr * stmt * pos
+  | For of [`Nop | `Var of var_decl list | `Expr of expr] * expr option * expr option * stmt * pos
+  | ForIn of [`Var of var_decl | `Expr of expr] * expr * stmt * pos
   | Debugger of pos
   | FunctionDecl of string * string list * stmt list * pos
-  | Var of (string * expr option * pos) list * pos
+  | Var of var_decl list * pos
+
+and var_decl = string * expr option * pos
 
 and expr =
   | Ident of string * pos
@@ -140,3 +142,55 @@ let pos_of_stmt = function
   | Debugger (pos) -> pos
   | FunctionDecl (_,_,_,pos) -> pos
   | Var (_,pos) -> pos
+
+let string_of_unary_op = function
+  | `PostIncr   -> "@++"
+  | `PostDecr   -> "@--"
+  | `PreIncr    -> "++"
+  | `PreDecr    -> "--"
+  | `Not        -> "!"
+  | `Negate     -> "~"
+  | `Plus       -> "+"
+  | `Minus      -> "-"
+  | `TypeOf     -> "typeof"
+  | `Void       -> "void"
+  | `Delete     -> "delete"
+
+let string_of_binary_op = function
+  | `Eq         -> "=="
+  | `Neq        -> "!="
+  | `Equal      -> "==="
+  | `NotEqual   -> "!=="
+  | `Lt         -> "<"
+  | `LtE        -> "<="
+  | `Gt         -> ">"
+  | `GtE        -> ">="
+  | `LShift     -> "<<"
+  | `AShift     -> ">>"
+  | `RShift     -> ">>>"
+  | `Add        -> "+"
+  | `Sub        -> "-"
+  | `Mult       -> "*"
+  | `Div        -> "/"
+  | `Mod        -> "%"
+  | `BitOr      -> "|"
+  | `BitAnd     -> "&"
+  | `BitXor     -> "^"
+  | `In         -> "in"
+  | `InstanceOf -> "instanceof"
+  | `Or         -> "||"
+  | `And        -> "&&"
+
+let string_of_assign_op = function
+  | `Nop        -> ""
+  | `Add        -> "+"
+  | `Sub        -> "-"
+  | `Mult       -> "*"
+  | `Div        -> "/"
+  | `Mod        -> "%"
+  | `LShift     -> "<<"
+  | `AShift     -> ">>"
+  | `RShift     -> ">>>"
+  | `BitOr      -> "|"
+  | `BitXor     -> "^"
+  | `BitAnd     -> "&"

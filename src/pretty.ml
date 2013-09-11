@@ -180,76 +180,16 @@ and pp_expr fmt = function
       fprintf fmt "void %a" pp_expr expr
   | Unary (`Delete, expr, _) ->
       fprintf fmt "delete %a" pp_expr expr
-  | Binary (`Eq, lhs, rhs, _) ->
-      fprintf fmt "(%a == %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Neq, lhs, rhs, _) ->
-      fprintf fmt "(%a != %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Equal, lhs, rhs, _) ->
-      fprintf fmt "(%a === %a)" pp_expr lhs pp_expr rhs
-  | Binary (`NotEqual, lhs, rhs, _) ->
-      fprintf fmt "(%a !== %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Lt, lhs, rhs, _) ->
-      fprintf fmt "(%a < %a)" pp_expr lhs pp_expr rhs
-  | Binary (`LtE, lhs, rhs, _) ->
-      fprintf fmt "(%a <= %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Gt, lhs, rhs, _) ->
-      fprintf fmt "(%a > %a)" pp_expr lhs pp_expr rhs
-  | Binary (`GtE, lhs, rhs, _) ->
-      fprintf fmt "(%a >= %a)" pp_expr lhs pp_expr rhs
-  | Binary (`LShift, lhs, rhs, _) ->
-      fprintf fmt "(%a << %a)" pp_expr lhs pp_expr rhs
-  | Binary (`AShift, lhs, rhs, _) ->
-      fprintf fmt "(%a >> %a)" pp_expr lhs pp_expr rhs
-  | Binary (`RShift, lhs, rhs, _) ->
-      fprintf fmt "(%a >>> %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Add, lhs, rhs, _) ->
-      fprintf fmt "(%a + %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Sub, lhs, rhs, _) ->
-      fprintf fmt "(%a - %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Mult, lhs, rhs, _) ->
-      fprintf fmt "(%a * %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Div, lhs, rhs, _) ->
-      fprintf fmt "(%a / %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Mod, lhs, rhs, _) ->
-      fprintf fmt "(%a %% %a)" pp_expr lhs pp_expr rhs
-  | Binary (`BitOr, lhs, rhs, _) ->
-      fprintf fmt "(%a | %a)" pp_expr lhs pp_expr rhs
-  | Binary (`BitAnd, lhs, rhs, _) ->
-      fprintf fmt "(%a & %a)" pp_expr lhs pp_expr rhs
-  | Binary (`BitXor, lhs, rhs, _) ->
-      fprintf fmt "(%a ^ %a)" pp_expr lhs pp_expr rhs
-  | Binary (`In, lhs, rhs, _) ->
-      fprintf fmt "(%a in %a)" pp_expr lhs pp_expr rhs
-  | Binary (`InstanceOf, lhs, rhs, _) ->
-      fprintf fmt "(%a instanceof %a)" pp_expr lhs pp_expr rhs
-  | Binary (`Or, lhs, rhs, _) ->
-      fprintf fmt "(%a || %a)" pp_expr lhs pp_expr rhs
-  | Binary (`And, lhs, rhs, _) ->
-      fprintf fmt "(%a && %a)" pp_expr lhs pp_expr rhs
-  | Assign (`Nop, lhs, rhs, _) ->
-      fprintf fmt "%a = %a" pp_expr lhs pp_expr rhs
-  | Assign (`Add, lhs, rhs, _) ->
-      fprintf fmt "%a += %a" pp_expr lhs pp_expr rhs
-  | Assign (`Sub, lhs, rhs, _) ->
-      fprintf fmt "%a -= %a" pp_expr lhs pp_expr rhs
-  | Assign (`Mult, lhs, rhs, _) ->
-      fprintf fmt "%a *= %a" pp_expr lhs pp_expr rhs
-  | Assign (`Div, lhs, rhs, _) ->
-      fprintf fmt "%a /= %a" pp_expr lhs pp_expr rhs
-  | Assign (`Mod, lhs, rhs, _) ->
-      fprintf fmt "%a %%= %a" pp_expr lhs pp_expr rhs
-  | Assign (`LShift, lhs, rhs, _) ->
-      fprintf fmt "%a <<= %a" pp_expr lhs pp_expr rhs
-  | Assign (`AShift, lhs, rhs, _) ->
-      fprintf fmt "%a >>= %a" pp_expr lhs pp_expr rhs
-  | Assign (`RShift, lhs, rhs, _) ->
-      fprintf fmt "%a >>>= %a" pp_expr lhs pp_expr rhs
-  | Assign (`BitOr, lhs, rhs, _) ->
-      fprintf fmt "%a |= %a" pp_expr lhs pp_expr rhs
-  | Assign (`BitXor, lhs, rhs, _) ->
-      fprintf fmt "%a ^= %a" pp_expr lhs pp_expr rhs
-  | Assign (`BitAnd, lhs, rhs, _) ->
-      fprintf fmt "%a &= %a" pp_expr lhs pp_expr rhs
+  | Binary (op, lhs, rhs, _) ->
+      fprintf fmt "(%a %s %a)"
+        pp_expr lhs
+        (string_of_binary_op op)
+        pp_expr rhs
+  | Assign (op, lhs, rhs, _) ->
+      fprintf fmt "%a =%s %a"
+        pp_expr lhs
+        (string_of_assign_op op)
+        pp_expr rhs
   | Ternary (cond, then_, else_, _) ->
       fprintf fmt "(%a ? %a : %a)" pp_expr cond pp_expr then_ pp_expr else_
   | New (expr, args, _) ->
