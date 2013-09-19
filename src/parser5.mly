@@ -474,9 +474,9 @@ expression_statement:
 
 if_statement:
     IF LPAREN expression RPAREN statement ELSE statement
-      { If ($3, $5, Some $7, $1) } 
+      { If ($3, $5, Some $7, $1) }
   | IF LPAREN expression RPAREN statement
-      { If ($3, $5, None, $1) } 
+      { If ($3, $5, None, $1) }
 
 iteration_statement:
     DO statement WHILE LPAREN expression RPAREN auto_semi
@@ -535,7 +535,7 @@ default_clause:
 default_clause_opt: default_clause { [$1] } | { [] }
 
 labeled_statement:
-    identifier_name COLON statement  { Labeled (fst $1, $3, snd $1) }
+    identifier COLON statement  { Labeled (fst $1, $3, snd $1) }
 
 throw_statement:
     THROW expression auto_semi
