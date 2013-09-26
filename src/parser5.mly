@@ -111,6 +111,47 @@ literal:
   | NUMERIC     { `Number (fst $1), snd $1 }
   | STRING      { `String (fst $1), snd $1 }
 /* TODO RegularExpressionLiteral */
+regular_expression_literal :
+    DIV regular_expression_body DIV regular_expression_flags { "RegExp",( $2, $4 )}
+
+regular_expression_body :
+    regular_expression_first_char regular_expression_chars {   }
+
+regular_expression_chars :
+      NULL {}
+    | regular_expression_chars regular_expression_char { $1 }
+
+regular_expression_first_char :
+    regular_expression_non_terminator{$1}
+  | regular_expression_backslash_sequence {$1}
+  | regular_expression_class {$1}
+
+regular_expression_char :
+    regular_expression_non_terminator {$1}
+  | regular_expression_backslash_sequence {$1}
+  | regular_expression_class {$1}
+
+regular_expression_backslash_sequence :
+    regular_expression_non_terminator {$1}
+ 
+regular_expression_non_terminator :
+    identifier {$1}
+
+regular_expression_class :
+    LBRACK regular_expression_class_chars RBRACK {$2}
+
+regular_expression_class_chars :
+    NULL {"RegExp"($1,)}
+  | regular_expression_class_chars regular_expression_class_char {  }
+
+regular_expression_class_char :
+    regular_expression_non_terminator {$1}
+  | regular_expression_backslash_sequence {}
+
+regular_expression_flags :
+    LBRACK RBRACK   {}
+  | regular_expression_flags identifier {"RegExp",($1,$2)}
+
 
 primary_expression:
     THIS                        { This $1 }
