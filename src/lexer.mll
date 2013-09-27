@@ -168,6 +168,9 @@ rule token state = parse
   | '?'         { QUESTION (start_pos lexbuf) }
   | ':'         { COLON (start_pos lexbuf) }
   | '='         { EQ (start_pos lexbuf) }
+  | '$'         { DOLLER (start_pos lexbuf) }
+  | '\\'        { BS (start_pos lexbuf) }
+
 
   (* NumericLiteral *)
   | decimal_literal as dec
