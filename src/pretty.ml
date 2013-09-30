@@ -260,6 +260,8 @@ and pp_expr fmt = function
       fprintf fmt "%a.%s" pp_expr expr id
   | Member (expr, `Expr e, _) ->
       fprintf fmt "%a[%a]" pp_expr expr pp_expr e
+  | RegExp (expr,flg,_) ->
+      fprintf fmt "/%a/%a" pp_expr expr pp_expr flg 
 
 and pp_literal fmt = function
   | `Null ->
