@@ -29,10 +29,10 @@
     DOT SEMI COMMA LT GT LE GE
     EQ2 NEQ EQ3 NEQ3
     PLUS MINUS MULT DIV MOD PLUS2 MINUS2
-    LT2 GT2 GT3 AND OR XOR DOLLER BS
+    LT2 GT2 GT3 AND OR XOR
     NOT NEG AND2 OR2 QUESTION COLON
     EQ PLUS_EQ MINUS_EQ MULT_EQ DIV_EQ MOD_EQ LT2_EQ
-    GT2_EQ GT3_EQ AND_EQ OR_EQ XOR_EQ
+    GT2_EQ GT3_EQ AND_EQ OR_EQ XOR_EQ DOLLER BS
 %token <Lexing.position>
     NULL TRUE FALSE
 %token <[`Dec of string | `Hex of string] * Lexing.position>
@@ -41,8 +41,6 @@
     STRING
 %token
     EOF
-
-
 
 %start statement
 %start program
@@ -112,49 +110,46 @@ literal:
   | FALSE       { `Bool false, $1 }
   | NUMERIC     { `Number (fst $1), snd $1 }
   | STRING      { `String (fst $1), snd $1 }
-/* TODO RegularExpressionLiteral */
+
+
+
 regular_expression_literal :
-    DIV regular_expression_body DIV regular_expression_flags { $2 }
+    DIV regular_expression_body DIV regular_expression_flags { RegExp( $2, $4 ,$1)}
 
 regular_expression_body :
     regular_expression_first_char regular_expression_chars { $2 }
 
 regular_expression_chars :
-      NULL {$1}
-    | regular_expression_chars regular_expression_char {$1}
+    regular_expression_chars regular_expression_char { $1 }
 
 regular_expression_first_char :
-    regular_expression_non_terminator{$1}
-  | regular_expression_backslash_sequence {$1}
-  | regular_expression_class {$1}
+    regular_expression_non_terminator { $1 }
+  | regular_expression_backslash_sequence { $1 }
+  | regular_expression_class { $1 }
 
 regular_expression_char :
     regular_expression_non_terminator { $1 }
   | regular_expression_backslash_sequence { $1 }
   | regular_expression_class { $1 }
 
-regular_expression_backslash_sequence:
+regular_expression_backslash_sequence :
     BS regular_expression_non_terminator { $2 }
-
+ 
 regular_expression_non_terminator :
-    identifier {$1}
+    identifier { Ident(fst $1, snd $1) }
 
 regular_expression_class :
     LBRACK regular_expression_class_chars RBRACK { $2 }
 
 regular_expression_class_chars :
-    empty {$1}
-  | regular_expression_class_chars regular_expression_class_char { $1 }
+  | regular_expression_class_chars regular_expression_class_char { $2 }
 
 regular_expression_class_char :
-    regular_expression_non_terminator {$1}
-  | regular_expression_backslash_sequence {$1}
+    regular_expression_non_terminator { $1 }
+  | regular_expression_backslash_sequence { $1 }
 
 regular_expression_flags :
-    LBRACK RBRACK { NULL }
-  | regular_expression_flags identifier {$2}
-
-
+   regular_expression_flags identifier { $1 }
 
 
 primary_expression:
