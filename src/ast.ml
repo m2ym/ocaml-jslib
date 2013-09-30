@@ -80,7 +80,7 @@ and stmt =
   | Debugger of pos
   | FunctionDecl of string * string list * stmt list * pos
   | Var of (string * expr option * pos) list * pos
-
+  
 and expr =
   | Ident of string * pos
   | Literal of literal * pos
@@ -96,7 +96,7 @@ and expr =
   | New of expr * expr list * pos
   | Call of expr * expr list * pos
   | Member of expr * [`Ident of string | `Expr of expr] * pos
-
+  | RegExp of expr * expr * pos
 and property_name = [`Ident of string | literal]
 
 and property =
@@ -119,7 +119,7 @@ let pos_of_expr = function
   | New (_,_,pos) -> pos
   | Call (_,_,pos) -> pos
   | Member (_,_,pos) -> pos
-
+  | RegExp (_,_,pos) -> pos
 let pos_of_stmt = function
   | Empty (pos) -> pos
   | Block (_,pos) -> pos
