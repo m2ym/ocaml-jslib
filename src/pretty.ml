@@ -261,7 +261,7 @@ and pp_expr fmt = function
   | Member (expr, `Expr e, _) ->
       fprintf fmt "%a[%a]" pp_expr expr pp_expr e
   | RegExp (expr,flg,_) ->
-      fprintf fmt "/%a/%a" pp_expr expr pp_expr flg 
+      fprintf fmt "/%a/%a" pp_expr expr pp_expr flg
 
 and pp_literal fmt = function
   | `Null ->
@@ -277,7 +277,7 @@ and pp_literal fmt = function
   | `Number (`Hex hex) ->
       fprintf fmt "0x%s" hex
 
-and pp_double_quoted_string fmt s =
+and pp_double_quoted_string fmt s=
   (* TODO escape *)
   fprintf fmt "\"%s\"" s
 

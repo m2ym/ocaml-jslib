@@ -114,7 +114,7 @@ literal:
 
 
 regular_expression_literal :
-    DIV regular_expression_body DIV regular_expression_flags { RegExp( $2, $4 ,$1)}
+    DIV regular_expression_body DIV regular_expression_flags { RegExp( $2, $4 ,pos_of_expr $2)}
 
 regular_expression_body :
     regular_expression_first_char regular_expression_chars { $2 }
