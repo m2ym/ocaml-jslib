@@ -111,10 +111,12 @@ literal:
   | NUMERIC     { `Number (fst $1), snd $1 }
   | STRING      { `String (fst $1), snd $1 }
 
-
-
 regular_expression_literal :
+<<<<<<< HEAD
     DIV regular_expression_body DIV regular_expression_flags { RegExp( $2, $4 ,pos_of_expr $2)}
+=======
+    DIV regular_expression_body DIV regular_expression_flags { RegExp( $2, $4 ,pos_of_expr $2) }
+>>>>>>> f3e1330c9417c1fe2ae354a84fa42ec089b62b0d
 
 regular_expression_body :
     regular_expression_first_char regular_expression_chars { $2 }
@@ -150,7 +152,6 @@ regular_expression_class_char :
 
 regular_expression_flags :
    regular_expression_flags identifier { $1 }
-
 
 primary_expression:
     THIS                        { This $1 }
