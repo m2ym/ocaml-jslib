@@ -1,4 +1,5 @@
 {
+  open Lexing
   open Parser5
   open Ast
 
@@ -24,7 +25,7 @@ let white_space = ['\x09' '\x0B' '\x0C' '\x20' '\xA0']
 (* LineTerminator *)
 let line_terminator = ['\x0A' '\x0D']
 let not_line_terminator = [^ '\x0A' '\x0D']
-let line_terminator_sequece = '\x0A' | '\x0D' | "\x0D\x0A"
+let line_terminator_sequence = '\x0A' | '\x0D' | "\x0D\x0A"
 (* TODO LS, PS *)
 
 (* Comment *)
@@ -58,7 +59,9 @@ rule token state = parse
   | white_space+        { token state lexbuf }
 
   (* LineTerminator *)
-  | line_terminator+    { token state lexbuf }
+  (* MEMO count lineno of CRLF file *)
+  | line_terminator_sequence { new_line lexbuf;
+                               token state lexbuf }
 
   (* Comment *)
   | "/*"                { multi_line_comment state lexbuf }
@@ -183,6 +186,8 @@ rule token state = parse
 
 and multi_line_comment state = parse
   | "*/"        { token state lexbuf }
+  | line_terminator_sequence { new_line lexbuf;
+                               multi_line_comment state lexbuf }
   | _           { multi_line_comment state lexbuf }
 
 and double_quoted_string state buf pos = parse
@@ -195,6 +200,7 @@ and double_quoted_string state buf pos = parse
 and single_quoted_string state buf pos = parse
   | '\''        { STRING (Buffer.contents buf, pos) }
   | '\\'        { escape_sequence state buf pos single_quoted_string lexbuf }
+  (* TODO LineContinuation *)
   (* accept LineTerminator *)
   | _ as c      { Buffer.add_char buf c;
                   single_quoted_string state buf pos lexbuf }
@@ -205,8 +211,9 @@ and escape_sequence state buf pos cont = parse
       { Buffer.add_char buf c;
         cont state buf pos lexbuf }
   (* LineContinuation *)
-  | line_terminator_sequece as lts
-      { Buffer.add_string buf lts;
+  | line_terminator_sequence as lts
+      { new_line lexbuf;
+        Buffer.add_string buf lts;
         cont state buf pos lexbuf }
   (* TODO 0 [lookahead is not DecimalDigit] *)
   (* HexEscapeSequence *)
