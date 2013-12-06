@@ -32,8 +32,8 @@ let single_line_comment = "//" not_line_terminator*
 
 (* Identifier *)
 (* TODO UnicodeLetter, UnicodeEscapeSequence *)
-let identifier_start = ['a'-'z' 'A'-'Z' '0'-'9'] | ['$' '_']
-let identifier_part  = identifier_start
+let identifier_start = ['a'-'z' 'A'-'Z'] | ['$' '_']
+let identifier_part  = identifier_start | ['0'-'9']
 let identifier_name  = identifier_start+ identifier_part?
 
 (* DecimalLiteral *)
