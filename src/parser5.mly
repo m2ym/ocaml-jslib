@@ -112,13 +112,16 @@ literal:
   | STRING      { `String (fst $1), snd $1 }
 /* TODO RegularExpressionLiteral */
 
-primary_expression:
+primary_expression_no_lb:
     THIS                        { This $1 }
   | identifier                  { Ident (fst $1, snd $1) }
   | literal                     { Literal (fst $1, snd $1) }
   | array_literal               { $1 }
-  | object_literal              { $1 }
   | LPAREN expression RPAREN    { $2 }
+
+primary_expression:
+    primary_expression_no_lb { $1 }
+  | object_literal               { $1 }
 
 array_literal:
     LBRACK RBRACK
@@ -170,8 +173,18 @@ member_expression:
   | member_expression DOT identifier_name       { Member ($1, `Ident (fst $3), $2) }
   | NEW member_expression arguments             { New ($2, $3, $1) }
 
+member_expression_no_lbf:
+    primary_expression_no_lb                    { $1 }
+  | member_expression_no_lbf LBRACK expression RBRACK  { Member ($1, `Expr $3, $2) }
+  | member_expression_no_lbf DOT identifier_name       { Member ($1, `Ident (fst $3), $2) }
+  | NEW member_expression arguments             { New ($2, $3, $1) }
+
 new_expression:
     member_expression                           { $1 }
+  | NEW new_expression                          { New ($2, [], $1) }
+
+new_expression_no_lbf:
+    member_expression_no_lbf                           { $1 }
   | NEW new_expression                          { New ($2, [], $1) }
 
 call_expression:
@@ -179,6 +192,12 @@ call_expression:
   | call_expression arguments                   { Call ($1, $2, pos_of_expr $1) }
   | call_expression LBRACK expression RBRACK    { Member ($1, `Expr $3, $2) }
   | call_expression DOT identifier_name         { Member ($1, `Ident (fst $3), $2) }
+
+call_expression_no_lbf:
+    member_expression_no_lbf arguments                 { Call ($1, $2, pos_of_expr $1) }
+  | call_expression_no_lbf arguments                   { Call ($1, $2, pos_of_expr $1) }
+  | call_expression_no_lbf LBRACK expression RBRACK    { Member ($1, `Expr $3, $2) }
+  | call_expression_no_lbf DOT identifier_name         { Member ($1, `Ident (fst $3), $2) }
 
 arguments:
     LPAREN RPAREN               { [] }
@@ -192,13 +211,34 @@ left_hand_side_expression:
     new_expression      { $1 }
   | call_expression     { $1 }
 
+left_hand_side_expression_no_lbf:
+    new_expression_no_lbf      { $1 }
+  | call_expression_no_lbf     { $1 }
+
 postfix_expression:
     left_hand_side_expression           { $1 }
   | left_hand_side_expression PLUS2     { Unary (`PostIncr, $1, $2) }
   | left_hand_side_expression MINUS2    { Unary (`PostDecr, $1, $2) }
 
+postfix_expression_no_lbf:
+    left_hand_side_expression_no_lbf           { $1 }
+  | left_hand_side_expression_no_lbf PLUS2     { Unary (`PostIncr, $1, $2) }
+  | left_hand_side_expression_no_lbf MINUS2    { Unary (`PostDecr, $1, $2) }
+
 unary_expression:
     postfix_expression                  { $1 }
+  | DELETE unary_expression             { Unary (`Delete, $2, $1) }
+  | VOID unary_expression               { Unary (`Void, $2, $1) }
+  | TYPEOF unary_expression             { Unary (`TypeOf, $2, $1) }
+  | PLUS2 unary_expression              { Unary (`PreIncr, $2, $1) }
+  | MINUS2 unary_expression             { Unary (`PreDecr, $2, $1) }
+  | PLUS unary_expression               { Unary (`Plus, $2, $1) }
+  | MINUS unary_expression              { Unary (`Minus, $2, $1) }
+  | NEG unary_expression                { Unary (`Negate, $2, $1) }
+  | NOT unary_expression                { Unary (`Not, $2, $1) }
+
+unary_expression_no_lbf:
+    postfix_expression_no_lbf                  { $1 }
   | DELETE unary_expression             { Unary (`Delete, $2, $1) }
   | VOID unary_expression               { Unary (`Void, $2, $1) }
   | TYPEOF unary_expression             { Unary (`TypeOf, $2, $1) }
@@ -219,12 +259,30 @@ multiplicative_expression:
   | multiplicative_expression MOD unary_expression
       { Binary (`Mod, $1, $3, $2) }
 
+multiplicative_expression_no_lbf:
+    unary_expression_no_lbf
+      { $1 }
+  | multiplicative_expression_no_lbf MULT unary_expression
+      { Binary (`Mult, $1, $3, $2) }
+  | multiplicative_expression_no_lbf DIV unary_expression
+      { Binary (`Div, $1, $3, $2) }
+  | multiplicative_expression_no_lbf MOD unary_expression
+      { Binary (`Mod, $1, $3, $2) }
+
 additive_expression:
     multiplicative_expression
       { $1 }
   | additive_expression PLUS multiplicative_expression
       { Binary (`Add, $1, $3, $2) }
   | additive_expression MINUS multiplicative_expression
+      { Binary (`Sub, $1, $3, $2) }
+
+additive_expression_no_lbf:
+    multiplicative_expression_no_lbf
+      { $1 }
+  | additive_expression_no_lbf PLUS multiplicative_expression
+      { Binary (`Add, $1, $3, $2) }
+  | additive_expression_no_lbf MINUS multiplicative_expression
       { Binary (`Sub, $1, $3, $2) }
 
 shift_expression:
@@ -235,6 +293,16 @@ shift_expression:
   | shift_expression GT2 additive_expression
       { Binary (`AShift, $1, $3, $2) }
   | shift_expression GT3 additive_expression
+      { Binary (`RShift, $1, $3, $2) }
+
+shift_expression_no_lbf:
+    additive_expression_no_lbf
+      { $1 }
+  | shift_expression_no_lbf LT2 additive_expression
+      { Binary (`LShift, $1, $3, $2) }
+  | shift_expression_no_lbf GT2 additive_expression
+      { Binary (`AShift, $1, $3, $2) }
+  | shift_expression_no_lbf GT3 additive_expression
       { Binary (`RShift, $1, $3, $2) }
 
 relational_expression:
@@ -251,6 +319,22 @@ relational_expression:
   | relational_expression INSTANCEOF shift_expression
       { Binary (`InstanceOf, $1, $3, $2) }
   | relational_expression IN shift_expression
+      { Binary (`In, $1, $3, $2) }
+
+relational_expression_no_lbf:
+    shift_expression_no_lbf
+      { $1 }
+  | relational_expression_no_lbf LT shift_expression
+      { Binary (`Lt, $1, $3, $2) }
+  | relational_expression_no_lbf GT shift_expression
+      { Binary (`Gt, $1, $3, $2) }
+  | relational_expression_no_lbf LE shift_expression
+      { Binary (`LtE, $1, $3, $2) }
+  | relational_expression_no_lbf GE shift_expression
+      { Binary (`GtE, $1, $3, $2) }
+  | relational_expression_no_lbf INSTANCEOF shift_expression
+      { Binary (`InstanceOf, $1, $3, $2) }
+  | relational_expression_no_lbf IN shift_expression
       { Binary (`In, $1, $3, $2) }
 
 relational_expression_no_in:
@@ -279,6 +363,18 @@ equality_expression:
   | equality_expression NEQ3 relational_expression
       { Binary (`NotEqual, $1, $3, $2) }
 
+equality_expression_no_lbf:
+    relational_expression_no_lbf
+      { $1 }
+  | equality_expression_no_lbf EQ2 relational_expression
+      { Binary (`Eq, $1, $3, $2) }
+  | equality_expression_no_lbf NEQ relational_expression
+      { Binary (`Neq, $1, $3, $2) }
+  | equality_expression_no_lbf EQ3 relational_expression
+      { Binary (`Equal, $1, $3, $2) }
+  | equality_expression_no_lbf NEQ3 relational_expression
+      { Binary (`NotEqual, $1, $3, $2) }
+
 equality_expression_no_in:
     relational_expression_no_in
       { $1 }
@@ -297,6 +393,12 @@ bitwise_AND_expression:
   | bitwise_AND_expression AND equality_expression
       { Binary (`BitAnd, $1, $3, $2) }
 
+bitwise_AND_expression_no_lbf:
+    equality_expression_no_lbf
+      { $1 }
+  | bitwise_AND_expression_no_lbf AND equality_expression
+      { Binary (`BitAnd, $1, $3, $2) }
+
 bitwise_AND_expression_no_in:
     equality_expression_no_in
       { $1 }
@@ -307,6 +409,12 @@ bitwise_XOR_expression:
     bitwise_AND_expression
       { $1 }
   | bitwise_XOR_expression XOR bitwise_AND_expression
+      { Binary (`BitXor, $1, $3, $2) }
+
+bitwise_XOR_expression_no_lbf:
+    bitwise_AND_expression_no_lbf
+      { $1 }
+  | bitwise_XOR_expression_no_lbf XOR bitwise_AND_expression
       { Binary (`BitXor, $1, $3, $2) }
 
 bitwise_XOR_expression_no_in:
@@ -321,6 +429,12 @@ bitwise_OR_expression:
   | bitwise_OR_expression OR bitwise_XOR_expression
       { Binary (`BitOr, $1, $3, $2) }
 
+bitwise_OR_expression_no_lbf:
+    bitwise_XOR_expression_no_lbf
+      { $1 }
+  | bitwise_OR_expression_no_lbf OR bitwise_XOR_expression
+      { Binary (`BitOr, $1, $3, $2) }
+
 bitwise_OR_expression_no_in:
     bitwise_XOR_expression_no_in
       { $1 }
@@ -331,6 +445,12 @@ logical_AND_expression:
     bitwise_OR_expression
       { $1 }
   | logical_AND_expression AND2 bitwise_OR_expression
+      { Binary (`And, $1, $3, $2) }
+
+logical_AND_expression_no_lbf:
+    bitwise_OR_expression_no_lbf
+      { $1 }
+  | logical_AND_expression_no_lbf AND2 bitwise_OR_expression
       { Binary (`And, $1, $3, $2) }
 
 logical_AND_expression_no_in:
@@ -345,6 +465,12 @@ logical_OR_expression:
   | logical_OR_expression OR2 logical_AND_expression
       { Binary (`Or, $1, $3, $2) }
 
+logical_OR_expression_no_lbf:
+    logical_AND_expression_no_lbf
+      { $1 }
+  | logical_OR_expression_no_lbf OR2 logical_AND_expression
+      { Binary (`Or, $1, $3, $2) }
+
 logical_OR_expression_no_in:
     logical_AND_expression_no_in
       { $1 }
@@ -355,6 +481,12 @@ conditional_expression:
     logical_OR_expression
       { $1 }
   | logical_OR_expression QUESTION assignment_expression COLON assignment_expression
+      { Ternary ($1, $3, $5, $2) }
+
+conditional_expression_no_lbf:
+    logical_OR_expression_no_lbf
+      { $1 }
+  | logical_OR_expression_no_lbf QUESTION assignment_expression COLON assignment_expression
       { Ternary ($1, $3, $5, $2) }
 
 conditional_expression_no_in:
@@ -371,7 +503,15 @@ assignment_expression:
   | left_hand_side_expression assignment_operator assignment_expression
       { Assign (fst $2, $1, $3, snd $2) }
 
- assignment_expression_no_in:
+assignment_expression_no_lbf:
+    conditional_expression_no_lbf
+      { $1 }
+  | left_hand_side_expression_no_lbf EQ assignment_expression
+      { Assign (`Nop, $1, $3, $2) }
+  | left_hand_side_expression_no_lbf assignment_operator assignment_expression
+      { Assign (fst $2, $1, $3, snd $2) }
+
+assignment_expression_no_in:
     conditional_expression_no_in
       { $1 }
   | left_hand_side_expression EQ assignment_expression_no_in
@@ -396,6 +536,12 @@ expression:
     assignment_expression
       { $1 }
   | expression COMMA assignment_expression
+      { Sequence ($1, $3, $2) }
+
+expression_no_lbf:
+    assignment_expression_no_lbf
+      { $1 }
+  | expression_no_lbf COMMA assignment_expression
       { Sequence ($1, $3, $2) }
 
 expression_opt: { None } | expression { Some $1 }
@@ -470,7 +616,7 @@ empty_statement:
     SEMI { Empty ($1) }
 
 expression_statement:
-    expression auto_semi { Expr ($1, pos_of_expr $1) }
+    expression_no_lbf auto_semi { Expr ($1, pos_of_expr $1) }
 
 if_statement:
     IF LPAREN expression RPAREN statement ELSE statement
