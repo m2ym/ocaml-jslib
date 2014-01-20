@@ -186,7 +186,7 @@ and pp_expr fmt = function
         (string_of_binary_op op)
         pp_expr rhs
   | Assign (op, lhs, rhs, _) ->
-      fprintf fmt "%a =%s %a"
+      fprintf fmt "%a %s= %a"
         pp_expr lhs
         (string_of_assign_op op)
         pp_expr rhs
