@@ -1,6 +1,6 @@
-BYTE_ENABLED = true
+BYTE_ENABLED   = true
 NATIVE_ENABLED = true
-USE_OCAMLFIND = true
+USE_OCAMLFIND  = true
 
 FILES[] = lexer ast parser5 parse5 pretty
 PACKAGE = $(OCamlPackage jslib, $(FILES))

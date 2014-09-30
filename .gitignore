@@ -1,0 +1,9 @@
+.omakedb*
+*.omc
+*.[ao]
+*.cm[aioxt]
+*.cmxa
+*.cmti
+src/lexer.ml
+src/parser5.ml
+src/parser5.mli
