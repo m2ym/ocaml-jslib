@@ -42,10 +42,12 @@
 %token
     EOF
 
-%start statement
-%start program
-%type <Ast.stmt> statement
-%type <Ast.program> program
+%start parse_expression
+%start parse_statement
+%start parse_program
+%type <Ast.expr> parse_expression
+%type <Ast.stmt> parse_statement
+%type <Ast.program> parse_program
 
 %%
 
@@ -538,6 +540,10 @@ expression:
   | expression COMMA assignment_expression
       { Sequence ($1, $3, $2) }
 
+parse_expression:
+    expression EOF
+      { $1 }
+
 expression_no_lbf:
     assignment_expression_no_lbf
       { $1 }
@@ -569,6 +575,9 @@ statement:
   | throw_statement             { $1 }
   | try_statement               { $1 }
   | debugger_statement          { $1 }
+
+parse_statement:
+    statement EOF               { $1 }
 
 block:
     LBRACE RBRACE                       { [], $1 }
@@ -718,6 +727,9 @@ formal_parameter_list:
 formal_parameter_list_opt: formal_parameter_list { $1 } | { [] }
 
 program:
-    statement_list EOF  { $1 }
+    statement_list      { $1 }
+
+parse_program:
+    program EOF         { $1 }
 
 %%
